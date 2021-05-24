@@ -40227,10 +40227,10 @@ THH:mm:ss.sss
             1. Return AsyncGeneratorUnwrapYieldResumption(_resumptionValue_).
           1. Else,
             1. Set _generator_.[[AsyncGeneratorState]] to ~suspendedYield~.
+            1. Remove _genContext_ from the execution context stack and restore the execution context that is at the top of the execution context stack as the running execution context.
             1. Set the code evaluation state of _genContext_ such that when evaluation is resumed with a Completion _resumptionValue_ the following steps will be performed:
               1. Return AsyncGeneratorUnwrapYieldResumption(_resumptionValue_).
               1. NOTE: When the above step returns, it returns to the evaluation of the |YieldExpression| production that originally called this abstract operation.
-            1. Remove _genContext_ from the execution context stack and restore the execution context that is at the top of the execution context stack as the running execution context.
             1. Return *undefined*.
             1. NOTE: This returns to the evaluation of the operation that had most previously resumed evaluation of _genContext_.
         </emu-alg>
