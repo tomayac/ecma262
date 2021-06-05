@@ -39981,14 +39981,14 @@ THH:mm:ss.sss
           1. If _state_ is ~completed~, then
             1. Let _iteratorResult_ be ! CreateIterResultObject(*undefined*, *true*).
             1. Perform ! Call(_promiseCapability_.[[Resolve]], *undefined*, &laquo; _iteratorResult_ &raquo;).
-            1. Return _promiseCapability_.
+            1. Return _promiseCapability_.[[Promise]].
           1. Let _completion_ be NormalCompletion(_value_).
           1. Perform ! AsyncGeneratorEnqueue(_generator_, _completion_, _promiseCapability_).
           1. If _state_ is either ~suspendedStart~ or ~suspendedYield~, then
             1. Perform ! AsyncGeneratorResume(_generator_, _completion_).
           1. Else,
             1. Assert: _state_ is either ~executing~ or ~awaiting-return~.
-          1. Return _promiseCapability_.
+          1. Return _promiseCapability_.[[Promise]].
         </emu-alg>
       </emu-clause>
 
@@ -39999,7 +39999,7 @@ THH:mm:ss.sss
           1. Let _promiseCapability_ be ! NewPromiseCapability(%Promise%).
           1. Let _result_ be AsyncGeneratorValidate(_generator_, ~empty~).
           1. IfAbruptRejectPromise(_result_, _promiseCapability_).
-          1. Let _completion_ be Completion { [[Type]]: ~return~, [[Value]]: _value_, [[Target]]: empty }.
+          1. Let _completion_ be Completion { [[Type]]: ~return~, [[Value]]: _value_, [[Target]]: ~empty~ }.
           1. Perform ! AsyncGeneratorEnqueue(_generator_, _completion_, _promiseCapability_).
           1. Let _state_ be _generator_.[[AsyncGeneratorState]].
           1. If _state_ is either ~suspendedStart~ or ~completed~, then
@@ -40009,7 +40009,7 @@ THH:mm:ss.sss
             1. Perform ! AsyncGeneratorResume(_generator_, _completion_).
           1. Else,
             1. Assert: _state_ is either ~executing~ or ~awaiting-return~.
-          1. Return _promiseCapability_.
+          1. Return _promiseCapability_.[[Promise]].
         </emu-alg>
       </emu-clause>
 
@@ -40026,14 +40026,14 @@ THH:mm:ss.sss
             1. Set _state_ to ~completed~.
           1. If _state_ is ~completed~, then
             1. Perform ! Call(_promiseCapability_.[[Reject]], *undefined*, &laquo; _exception_ &raquo;).
-            1. Return _promiseCapability_.
+            1. Return _promiseCapability_.[[Promise]].
           1. Let _completion_ be ThrowCompletion(_exception_).
           1. Perform ! AsyncGeneratorEnqueue(_generator_, _completion_, _promiseCapability_).
           1. If _state_ is ~suspendedYield~, then
             1. Perform ! AsyncGeneratorResume(_generator_, _completion_).
           1. Else,
             1. Assert: _state_ is either ~executing~ or ~awaiting-return~.
-          1. Return _promiseCapability_.
+          1. Return _promiseCapability_.[[Promise]].
         </emu-alg>
       </emu-clause>
 
@@ -40146,14 +40146,14 @@ THH:mm:ss.sss
 
       <emu-clause id="sec-asyncgeneratorenqueue" aoid="AsyncGeneratorEnqueue">
         <h1>AsyncGeneratorEnqueue ( _generator_, _completion_, _promiseCapability_ )</h1>
-        <p>The abstract operation AsyncGeneratorEnqueue takes arguments _generator_ (an Async Generator), _completion_ (a Completion Record), and _promiseCapability_ (a PromiseCapability Record). It performs the following steps when called:</p>
+        <p>The abstract operation AsyncGeneratorEnqueue takes arguments _generator_ (an AsyncGenerator), _completion_ (a Completion Record), and _promiseCapability_ (a PromiseCapability Record). It performs the following steps when called:</p>
         <emu-alg>
           1. Let _request_ be AsyncGeneratorRequest { [[Completion]]: _completion_, [[Capability]]: _promiseCapability_ }.
           1. Append _request_ to the end of _generator_.[[AsyncGeneratorQueue]].
         </emu-alg>
       </emu-clause>
 
-      <emu-clause id="sec-ascyngeneratorcompletestep" aoid="AsyncGeneratorCompleteStep">
+      <emu-clause id="sec-asyncgeneratorcompletestep" aoid="AsyncGeneratorCompleteStep">
         <h1>AsyncGeneratorCompleteStep ( _generator_, _completion_, _done_ [, _realm ] )</h1>
         <p>The abstract operation AsyncGeneratorCompleteStep takes arguments _generator_ (an AsyncGenerator), _completion_ (a Completion Record), and _done_ (a Boolean) and optional argument _realm_ (a Realm Record). It performs the following steps when called:</p>
         <emu-alg>
@@ -40215,7 +40215,7 @@ THH:mm:ss.sss
           1. Let _generator_ be the value of the Generator component of _genContext_.
           1. Assert: GetGeneratorKind() is ~async~.
           1. Set _value_ to ? Await(_value_).
-          1. Let _completion_ be NormalCompletion(value).
+          1. Let _completion_ be NormalCompletion(_value_).
           1. Assert: There are at least two items on the execution context stack.
           1. Let _previousContext_ be the execution context immediately beneath the running execution context.
           1. Let _previousRealm_ be _previousContext_'s Realm.
@@ -40243,7 +40243,7 @@ THH:mm:ss.sss
         <emu-alg>
           1. Let _queue_ be _generator_.[[AsyncGeneratorQueue]].
           1. Assert: _queue_ is not empty.
-          1. Let _next_ the first element of _queue_.
+          1. Let _next_ be the first element of _queue_.
           1. Let _completion_ be _next_.[[Completion]].
           1. Assert: _completion_.[[Type]] is ~return~.
           1. Let _promise_ be ? PromiseResolve(%Promise%, _completion_.[[Value]]).
@@ -40310,7 +40310,7 @@ THH:mm:ss.sss
               1. If _completion_.[[Type]] is ~normal~, then
                 1. Set _completion_ to NormalCompletion(*undefined*).
               1. Perform ! AsyncGeneratorCompleteStep(_generator_, _completion_, *true*).
-              1. If _queue_ is empty, set *done* to *true*.
+              1. If _queue_ is empty, set _done_ to *true*.
         </emu-alg>
       </emu-clause>
 
