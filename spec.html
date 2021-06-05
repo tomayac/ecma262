@@ -40099,11 +40099,6 @@ THH:mm:ss.sss
               <td>A PromiseCapability Record</td>
               <td>The promise capabilities associated with this request.</td>
             </tr>
-            <tr>
-              <td>[[Realm]]</td>
-              <td>A Realm Record</td>
-              <td>The Realm to use when creating result objects for this request.</td>
-            </tr>
             </tbody>
           </table>
         </emu-table>
@@ -40153,15 +40148,14 @@ THH:mm:ss.sss
         <h1>AsyncGeneratorEnqueue ( _generator_, _completion_, _promiseCapability_ )</h1>
         <p>The abstract operation AsyncGeneratorEnqueue takes arguments _generator_ (an Async Generator), _completion_ (a Completion Record), and _promiseCapability_ (a PromiseCapability Record). It performs the following steps when called:</p>
         <emu-alg>
-          1. Let _realm_ be the current Realm record.
-          1. Let _request_ be AsyncGeneratorRequest { [[Completion]]: _completion_, [[Capability]]: _promiseCapability_, [[Realm]]: _realm_ }.
+          1. Let _request_ be AsyncGeneratorRequest { [[Completion]]: _completion_, [[Capability]]: _promiseCapability_ }.
           1. Append _request_ to the end of _generator_.[[AsyncGeneratorQueue]].
         </emu-alg>
       </emu-clause>
 
       <emu-clause id="sec-ascyngeneratorcompletestep" aoid="AsyncGeneratorCompleteStep">
-        <h1>AsyncGeneratorCompleteStep ( _generator_, _completion_, _done_ )</h1>
-        <p>The abstract operation AsyncGeneratorCompleteStep takes arguments _generator_ (an AsyncGenerator) and _completion_ (a Completion Record). It performs the following steps when called:</p>
+        <h1>AsyncGeneratorCompleteStep ( _generator_, _completion_, _done_ [, _realm ] )</h1>
+        <p>The abstract operation AsyncGeneratorCompleteStep takes arguments _generator_ (an AsyncGenerator), _completion_ (a Completion Record), and _done_ (a Boolean) and optional argument _realm_ (a Realm Record). It performs the following steps when called:</p>
         <emu-alg>
           1. Let _queue_ be _generator_.[[AsyncGeneratorQueue]].
           1. Assert: _queue_ is not empty.
@@ -40173,10 +40167,13 @@ THH:mm:ss.sss
             1. Perform ! Call(_promiseCapability_.[[Reject]], *undefined*, &laquo; _value_ &raquo;).
           1. Else,
             1. Assert: _completion_.[[Type]] is ~normal~.
-            1. Let _oldRealm_ be the running execution context's Realm.
-            1. Set the running execution context's Realm to _next_.[[Realm]].
-            1. Let _iteratorResult_ be ! CreateIterResultObject(_value_, _done_).
-            1. Set the running execution context's Realm to _oldRealm_.
+            1. If _realm_ is present, then
+              1. Let _oldRealm_ be the running execution context's Realm.
+              1. Set the running execution context's Realm to _realm_.
+              1. Let _iteratorResult_ be ! CreateIterResultObject(_value_, _done_).
+              1. Set the running execution context's Realm to _oldRealm_.
+            1. Else,
+              1. Let _iteratorResult_ be ! CreateIterResultObject(_value_, _done_).
             1. Perform ! Call(_promiseCapability_.[[Resolve]], *undefined*, &laquo; _iteratorResult_ &raquo;).
         </emu-alg>
       </emu-clause>
@@ -40219,7 +40216,10 @@ THH:mm:ss.sss
           1. Assert: GetGeneratorKind() is ~async~.
           1. Set _value_ to ? Await(_value_).
           1. Let _completion_ be NormalCompletion(value).
-          1. Perform ! AsyncGeneratorCompleteStep(_generator_, _completion_, *false*).
+          1. Assert: There are at least two items on the execution context stack.
+          1. Let _previousContext_ be the execution context immediately beneath the running execution context.
+          1. Let _previousRealm_ be _previousContext_'s Realm.
+          1. Perform ! AsyncGeneratorCompleteStep(_generator_, _completion_, *false*, _previousRealm_).
           1. Let _queue_ be _generator_.[[AsyncGeneratorQueue]].
           1. If _queue_ is not empty, then
             1. NOTE: Execution continues without suspending the generator.
